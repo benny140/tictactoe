@@ -5,7 +5,7 @@ function Square({ value, colour, onSquareClick }) {
     <button
       className="square"
       onClick={onSquareClick}
-      style={{ backgroundColor: colour === "X" ? "red" : "white" }}
+      style={{ backgroundColor: colour }}
     >
       {value}
     </button>
@@ -33,9 +33,9 @@ function Board({ xIsNext, squares, onPlay }) {
   let status;
   if (winner) {
     status = "Winner: " + winner;
-    squaresColours[winningLine[0]] = "X";
-    squaresColours[winningLine[1]] = "X";
-    squaresColours[winningLine[2]] = "X";
+    squaresColours[winningLine[0]] = "red";
+    squaresColours[winningLine[1]] = "red";
+    squaresColours[winningLine[2]] = "red";
   } else if (draw) {
     status = "Draw";
   } else {
