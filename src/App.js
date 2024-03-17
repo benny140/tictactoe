@@ -2,11 +2,7 @@ import { useState } from "react";
 
 function Square({ value, colour, onSquareClick }) {
   return (
-    <button
-      className="square"
-      onClick={onSquareClick}
-      style={{ backgroundColor: colour === "X" ? "red" : "white" }}
-    >
+    <button className="square" onClick={onSquareClick} style={{ colour }}>
       {value}
     </button>
   );
@@ -29,13 +25,13 @@ function Board({ xIsNext, squares, onPlay }) {
   const winner = calculateWinner(squares);
   const winningLine = calculateWinningLine(squares);
   const draw = calculateOccupied(squares);
-  let squaresColours = [Array(9).fill(null)];
+  let squaresColours = [Array(81).fill(null)];
   let status;
   if (winner) {
     status = "Winner: " + winner;
-    squaresColours[winningLine[0]] = "X";
-    squaresColours[winningLine[1]] = "X";
-    squaresColours[winningLine[2]] = "X";
+    squaresColours[winningLine[0]] = "red";
+    squaresColours[winningLine[1]] = "red";
+    squaresColours[winningLine[2]] = "red";
   } else if (draw) {
     status = "Draw";
   } else {
@@ -45,17 +41,19 @@ function Board({ xIsNext, squares, onPlay }) {
   return (
     <>
       <div className="status">{status}</div>
-      {[0, 1, 2].map((x) => (
-        <div className="board-row">
-          {[0, 1, 2].map((y) => (
-            <Square
-              value={squares[3 * x + y]}
-              colour={squaresColours[3 * x + y]}
-              onSquareClick={() => handleClick(3 * x + y)}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="board-container">
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((x) => (
+          <div className="board-row">
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((y) => (
+              <Square
+                value={squares[9 * x + y]}
+                colour={squaresColours[9 * x + y]}
+                onSquareClick={() => handleClick(9 * x + y)}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </>
   );
 }
@@ -82,7 +80,7 @@ function Checkbox({ orderValue, setOrderFunction }) {
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([Array(81).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const [order, setOrder] = useState(false);
   const xIsNext = currentMove % 2 === 0;
@@ -103,7 +101,7 @@ export default function Game() {
   }
 
   let history_plus = history.slice();
-  history_plus.push(Array(9).fill(null));
+  history_plus.push(Array(81).fill(null));
   const moves = history_plus.map((squares, move) => {
     let description;
     let length = history.length;
@@ -137,8 +135,74 @@ export default function Game() {
 
   return (
     <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      <div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        {/* <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div>
+        <div className="game-board">
+          <Board
+            xIsNext={xIsNext}
+            squares={currentSquares}
+            onPlay={handlePlay}
+          />
+        </div> */}
       </div>
       <div className="game-info">
         <Checkbox orderValue={order} setOrderFunction={handleToggle} />
@@ -197,22 +261,17 @@ function calculateOccupied(squares) {
   }
 }
 
+function mapIndexToSquare(i) {
+  const row = Math.floor(i / 9) + 1;
+  const column = (i % 9) + 1;
+  return `r${row}c${column}`;
+}
+
 function findDifferenceIndex(list1, list2) {
   // Important! This function assumes list2 is after list1 in play sequence
-  const outcomes = [
-    "r1c1",
-    "r1c2",
-    "r1c3",
-    "r2c1",
-    "r2c2",
-    "r2c3",
-    "r3c1",
-    "r3c2",
-    "r3c3",
-  ];
   for (let i = 0; i < list1.length; i++) {
     if (list1[i] !== list2[i]) {
-      return list2[i] + " to " + outcomes[i];
+      return list2[i] + " to " + mapIndexToSquare(i);
     }
   }
   // If no differences found, return -1
