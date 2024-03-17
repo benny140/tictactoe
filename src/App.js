@@ -1,83 +1,6 @@
 import { useState } from "react";
-
-function Square({ value, colour, onSquareClick }) {
-  return (
-    <button className="square" onClick={onSquareClick} style={{ colour }}>
-      {value}
-    </button>
-  );
-}
-
-function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
-    const nextSquares = squares.slice();
-    if (squares[i] || calculateWinner(squares)) {
-      return;
-    }
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    onPlay(nextSquares);
-  }
-
-  const winner = calculateWinner(squares);
-  const winningLine = calculateWinningLine(squares);
-  const draw = calculateOccupied(squares);
-  let squaresColours = [Array(81).fill(null)];
-  let status;
-  if (winner) {
-    status = "Winner: " + winner;
-    squaresColours[winningLine[0]] = "red";
-    squaresColours[winningLine[1]] = "red";
-    squaresColours[winningLine[2]] = "red";
-  } else if (draw) {
-    status = "Draw";
-  } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
-  }
-
-  return (
-    <>
-      <div className="status">{status}</div>
-      <div className="board-container">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((x) => (
-          <div className="board-row">
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((y) => (
-              <Square
-                value={squares[9 * x + y]}
-                colour={squaresColours[9 * x + y]}
-                onSquareClick={() => handleClick(9 * x + y)}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-function Checkbox({ orderValue, setOrderFunction }) {
-  return (
-    <div className="form-check form-switch">
-      <input
-        className="form-check-input"
-        type="checkbox"
-        role="switch"
-        id="flexSwitchCheckDefault"
-        onClick={setOrderFunction}
-      />
-      <label
-        className="form-check-label"
-        htmlFor="flexSwitchCheckDefault"
-        checked={orderValue ? true : false}
-      >
-        Reverse list order
-      </label>
-    </div>
-  );
-}
+import Board from "./components/Board";
+import Checkbox from "./components/Checkbox";
 
 export default function Game() {
   const [history, setHistory] = useState([Array(81).fill(null)]);
@@ -143,66 +66,6 @@ export default function Game() {
             onPlay={handlePlay}
           />
         </div>
-        {/* <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-      </div>
-      <div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-      </div>
-      <div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div>
-        <div className="game-board">
-          <Board
-            xIsNext={xIsNext}
-            squares={currentSquares}
-            onPlay={handlePlay}
-          />
-        </div> */}
       </div>
       <div className="game-info">
         <Checkbox orderValue={order} setOrderFunction={handleToggle} />
@@ -210,55 +73,6 @@ export default function Game() {
       </div>
     </div>
   );
-}
-
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
-
-function calculateWinningLine(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return lines[i];
-    }
-  }
-  return null;
-}
-
-function calculateOccupied(squares) {
-  const hasNoNull = squares.every((element) => element !== null);
-  if (hasNoNull) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 function mapIndexToSquare(i) {
@@ -278,9 +92,36 @@ function findDifferenceIndex(list1, list2) {
   return -1;
 }
 
+function subRegionMapping(i) {
+  const gridList = [
+    0, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 0, 1, 1, 1, 2,
+    2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 3, 3, 3, 4, 4, 4, 5, 5, 5, 3, 3, 3, 4, 4,
+    4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 6, 6, 6, 7, 7, 7, 8, 8, 8, 6, 6, 6,
+    7, 7, 7, 8, 8, 8,
+  ];
+  return gridList[i];
+}
+
+function getSubGroup(squares, group) {
+  const length = myArray.length;
+  let output = Array(length / 9).fill(null);
+  let counter = 0;
+  for (let i = 0; i < length; i++) {
+    if (subRegionMapping(i) == group) {
+      output[counter] = squares[i];
+      counter += 1;
+    }
+  }
+  return output;
+}
+
 // Additional Exercises
 // DONE For the current move only, show “You are at move #…” instead of a button.
 // DONE Rewrite Board to use two loops to make the squares instead of hardcoding them.
 // DONE Add a toggle button that lets you sort the moves in either ascending or descending order.
 // DONE When someone wins, highlight the three squares that caused the win (and when no one wins, display a message about the result being a draw).
 // DONE Display the location for each move in the format (row, col) in the move history list.
+
+// for super tic tac toe - valid move? (determine which next move is valid)
+// minor win (whole board - already doing)
+// major win (state)
